@@ -44,8 +44,8 @@ def generate_content(code, url):
     if code == 405:
         return '<h1>405</h1><p>Method not allowed</p>'
 #    return '{}'.format(URLS[url])
-    return '<p>' + str(os.listdir(DOCUMENT_ROOT)) + '</p>' # os.path.isfile || os.path.isdir
-
+#    return '<p>' + ''.join(str(os.listdir(DOCUMENT_ROOT))) + '</p>' # os.path.isfile || os.path.isdir
+    return '\r\n'.join( '<p>' + repr(e).replace("'", '') + '</p>' for e in os.listdir(DOCUMENT_ROOT))
 
 def generate_response(request):
 #    print('request is: ', request) # request is:  GET /test_file HTTP/1.1

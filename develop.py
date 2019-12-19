@@ -18,6 +18,9 @@ url = '2'
 #    print('exists')
 
 
+print( '\r\n'.join( '<p>' + repr(e).replace("'", '') + '</p>' for e in os.listdir(DOCUMENT_ROOT)))
+
+
 #Thu, 19 Dec 2019 07:48:55 GMT\r\n
 #print(datetime.datetime.now()) #2019-12-19 11:53:19.336632
 
