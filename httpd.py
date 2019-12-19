@@ -1,7 +1,8 @@
 #!/usr/bin/python3
 
-
+import os
 import socket
+import argparse
 
 
 URLS = {
@@ -11,6 +12,8 @@ URLS = {
     '/author/3': 'Book 1: 3, Book 2: 3, Book 3: 3, Book 4: 3'
 }
 
+DOCUMENT_ROOT = 'document_root'
+
 def parse_request(request):
     parsed = request.split(' ')
     method = parsed[0]
@@ -19,9 +22,10 @@ def parse_request(request):
 
 
 def generate_headers(method, url):
-    if method != 'GET':
+    if method not in ['GET', 'HEAD']:
         return ('HTTP/1.1 405 Methd not allowed\n\n', 405)
-    if url not in URLS:
+    print(type(url), url)
+    if not os.path.exists(os.path.join(DOCUMENT_ROOT, url.split('/')[1])):
         return ('HTTP/1.1 404 not found\n\n', 404)
     return (('HTTP/1.1 200 OK\n\n', 200))
 
@@ -31,7 +35,8 @@ def generate_content(code, url):
         return '<h1>404</h1><p>Not found</p>'
     if code == 405:
         return '<h1>405</h1><p>Method not allowed</p>'
-    return '{}'.format(URLS[url])
+#    return '{}'.format(URLS[url])
+    return '<p>' + str(os.listdir(DOCUMENT_ROOT)) + '</p>'
 
 
 def generate_response(request):
@@ -62,5 +67,13 @@ def run():
 
 
 if __name__ == '__main__':
+#    parser = argparse.ArgumentParser()
+#    parser.add_argument('-r', help='listing root dir', default=DOCUMENT_ROOT)
+#    args = parser.parse_args()
+#    if args.r:
+
     run()
+
+
+
 
