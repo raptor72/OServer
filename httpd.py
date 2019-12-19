@@ -1,8 +1,10 @@
 #!/usr/bin/python3
 
 import os
+import sys
 import socket
 import argparse
+import datetime
 
 
 URLS = {
@@ -22,12 +24,18 @@ def parse_request(request):
 
 
 def generate_headers(method, url):
+    server = 'Server: python ' + sys.version.split('[')[0].strip() + ' ' +  sys.version.split('[')[1].strip().replace(']', '') + '\r\n'
+    date = 'Date: ' + datetime.datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S GMT') + '\r\n'
+    content_type = 'Content-Type: text/html;charset=UTF-8\r\n'
+    connection = 'Connection: close\r\n'
+    content_tength = 'Content-Length: ' + str(sys.getsizeof(url)) + '\r\n'
+
     if method not in ['GET', 'HEAD']:
         return ('HTTP/1.1 405 Methd not allowed\n\n', 405)
-    print(type(url), url)
+    print('url is: ', type(url), len(url), sys.getsizeof(url), url)
     if not os.path.exists(os.path.join(DOCUMENT_ROOT, url.split('/')[1])):
         return ('HTTP/1.1 404 not found\n\n', 404)
-    return (('HTTP/1.1 200 OK\n\n', 200))
+    return (('HTTP/1.1 200 OK\n\n' + server + date + connection + content_tength , 200))
 
 
 def generate_content(code, url):
