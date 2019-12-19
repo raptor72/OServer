@@ -23,10 +23,21 @@ def parse_request(request):
     return (method, url)
 
 
+def parse_content_type(url):
+    if os.path.isfile(os.path.join(DOCUMENT_ROOT, url.split('/')[1])):
+        try:
+            extension =  url.split('/')[1].split('.')[1]
+            if extension in ['html', 'css', 'js', 'jpg', 'jpeg', 'png', 'gif', 'swf']:
+                return 'Content-Type: ' + extension + '\r\n'
+        except:
+            return 'Content-Type: text/html;charset=UTF-8\r\n'
+    return 'Content-Type: text/html;charset=UTF-8\r\n'
+
 def generate_headers(method, url):
     server = 'Server: python ' + sys.version.split('[')[0].strip() + ' ' +  sys.version.split('[')[1].strip().replace(']', '') + '\r\n'
     date = 'Date: ' + datetime.datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S GMT') + '\r\n'
-    content_type = 'Content-Type: text/html;charset=UTF-8\r\n'
+#    content_type = 'Content-Type: text/html;charset=UTF-8\r\n'
+    content_type = parse_content_type(url)
     connection = 'Connection: close\r\n'
     content_tength = 'Content-Length: ' + str(sys.getsizeof(url)) + '\r\n'
 
@@ -35,7 +46,7 @@ def generate_headers(method, url):
     print('url is: ', type(url), len(url), sys.getsizeof(url), url)
     if not os.path.exists(os.path.join(DOCUMENT_ROOT, url.split('/')[1])):
         return ('HTTP/1.1 404 not found\n\n', 404)
-    return (('HTTP/1.1 200 OK\n\n' + server + date + connection + content_tength , 200))
+    return (('HTTP/1.1 200 OK\n\n' + server + date + content_type + connection + content_tength , 200))
 
 
 def generate_content(code, url):
@@ -45,7 +56,10 @@ def generate_content(code, url):
         return '<h1>405</h1><p>Method not allowed</p>'
 #    return '{}'.format(URLS[url])
 #    return '<p>' + ''.join(str(os.listdir(DOCUMENT_ROOT))) + '</p>' # os.path.isfile || os.path.isdir
-    return '\r\n'.join( '<p>' + repr(e).replace("'", '') + '</p>' for e in os.listdir(DOCUMENT_ROOT))
+#    print(os.path.isfile(os.path.join(DOCUMENT_ROOT, url.split('/')[1])))
+    if os.path.isdir(os.path.join(DOCUMENT_ROOT, url.split('/')[1])):
+        return '\r\n'.join( '<p>' + repr(e).replace("'", '') + '</p>' for e in os.listdir(DOCUMENT_ROOT))
+    return '<p>Hello world</p>'
 
 def generate_response(request):
 #    print('request is: ', request) # request is:  GET /test_file HTTP/1.1
