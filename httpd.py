@@ -40,14 +40,14 @@ def generate_headers(method, url):
     date = 'Date: ' + datetime.datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S GMT')
     content_type = 'Content-Type: ' + parse_content_type(url)
     connection = 'Connection: close'
-    content_tength = 'Content-Length: ' + str(sys.getsizeof(url))
+    content_length = 'Content-Length: ' + str(sys.getsizeof(url))
 
     if method not in ['GET', 'HEAD']:
         return ('HTTP/1.1 405 Methd not allowed\n\n', 405)
     print('url is: ', url, 'type is: ', type(url), 'len is: ', len(url), 'bytelen is: ', sys.getsizeof(url))
     if not os.path.exists(url) and not os.path.exists(os.path.join(DOCUMENT_ROOT, url)):
         return ('HTTP/1.1 404 not found\n\n', 404)
-    return (('HTTP/1.1 200 OK' + server + date + content_type + connection + content_tength + '\n\n' , 200))
+    return (('HTTP/1.1 200 OK\n' + server + '\n' + date + '\n' + content_type + '\n' + connection + content_length + '\n\n' , 200))
 
 def render_html(html_file):
     with open(html_file, 'r') as html:
@@ -65,16 +65,16 @@ def generate_content(code, url):
         return '\r\n'.join( '<p>' + repr(e).replace("'", '') + '</p>' for e in os.listdir(url))
 
     if not '/' in url:
-        print('not / in url')
         if os.path.isfile(os.path.join(DOCUMENT_ROOT, url)):
             content_type = parse_content_type(url)
             if content_type == 'html':
                 return render_html(os.path.join(DOCUMENT_ROOT, url))
+            return '<p>Content type of file is: ' + content_type + '</p>'
     if os.path.isfile(url):
         content_type = parse_content_type(url)
         if content_type == 'html':
             return render_html(url)
-        return '<p>Contetn type of file is: ' + content_type + '</p>'
+        return '<p>Content type of file is: ' + content_type + '</p>'
 
     if os.path.isdir(url):
         if os.path.exists(os.path.join(url, 'index.html')):
@@ -84,6 +84,7 @@ def generate_content(code, url):
 def generate_response(request):
     method, url = parse_request(request)
     headers, code = generate_headers(method, url)
+    print(headers)
     body = generate_content(code, url)
     return (headers + body).encode()
 
