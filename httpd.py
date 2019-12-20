@@ -8,12 +8,6 @@ import datetime
 
 from optparse import OptionParser
 
-URLS = {
-    '/authors': 'Author_A: 1, Author_B: 2, Author_C: 3',
-    '/author/1': 'Book 1: 1, Book 2: 1, Book 3: 1',
-    '/author/2': 'Book 1: 2, Book 2: 2',
-    '/author/3': 'Book 1: 3, Book 2: 3, Book 3: 3, Book 4: 3'
-}
 
 DOCUMENT_ROOT = 'root'
 
@@ -89,11 +83,11 @@ def generate_response(request):
     body = generate_content(code, url)
     return (headers + body).encode()
 
-def run():
+def run(port):
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-#    server_socket.bind(('127.0.0.1', 5123))
-    server_socket.bind(('172.17.0.2', 5123))
+#    server_socket.bind(('127.0.0.1', port))
+    server_socket.bind(('172.17.0.2', port))
     server_socket.listen()
 
     while True:
@@ -114,14 +108,12 @@ if __name__ == '__main__':
 #    parser.add_argument('-l', help='logfile', default=DOCUMENT_ROOT)
 #    args = parser.parse_args()
     op = OptionParser()
-    op.add_option("-p", "--port", action="store", type=int, default=8080)
+    op.add_option("-p", "--port", action="store", type=int, default=5123)
+    op.add_option("-r", "--root", action="store", type=str, default="root")
     op.add_option("-l", "--log", action="store", default=None)
     (opts, args) = op.parse_args()
     logging.basicConfig(filename=opts.log, level=logging.INFO,
                         format='[%(asctime)s] %(levelname).1s %(message)s', datefmt='%Y.%m.%d %H:%M:%S')
-    logging.info('Starting server at %s' % '5123')
-    run()
-
-
-
+    logging.info('Starting server at %s' % opts.port)
+    run(opts.port)
 
