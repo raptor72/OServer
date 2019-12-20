@@ -3,9 +3,10 @@
 import os
 import sys
 import socket
-import argparse
+import logging
 import datetime
 
+from optparse import OptionParser
 
 URLS = {
     '/authors': 'Author_A: 1, Author_B: 2, Author_C: 3',
@@ -44,7 +45,7 @@ def generate_headers(method, url):
 
     if method not in ['GET', 'HEAD']:
         return ('HTTP/1.1 405 Methd not allowed\n\n', 405)
-    print('url is: ', url, 'type is: ', type(url), 'len is: ', len(url), 'bytelen is: ', sys.getsizeof(url))
+    logging.info(f'url is: {url}, type is: {type(url)}, len is:  {len(url)}, bytelen is: {sys.getsizeof(url)}')
     if not os.path.exists(url) and not os.path.exists(os.path.join(DOCUMENT_ROOT, url)):
         return ('HTTP/1.1 404 not found\n\n', 404)
     return (('HTTP/1.1 200 OK\n' + server + '\n' + date + '\n' + content_type + '\n' + connection + content_length + '\n\n' , 200))
@@ -84,7 +85,7 @@ def generate_content(code, url):
 def generate_response(request):
     method, url = parse_request(request)
     headers, code = generate_headers(method, url)
-    print(headers)
+    logging.info('Headers is %s' % headers)
     body = generate_content(code, url)
     return (headers + body).encode()
 
@@ -98,9 +99,8 @@ def run():
     while True:
         client_socket, addr = server_socket.accept()
         request = client_socket.recv(1024)
-        print(request)
-        print()
-        print(addr)
+        logging.info('request is: %s', request)
+        logging.info('addres is: %s', addr)
         if request:
             response = generate_response(request.decode('utf-8'))
 
@@ -111,9 +111,15 @@ def run():
 if __name__ == '__main__':
 #    parser = argparse.ArgumentParser()
 #    parser.add_argument('-r', help='listing root dir', default=DOCUMENT_ROOT)
+#    parser.add_argument('-l', help='logfile', default=DOCUMENT_ROOT)
 #    args = parser.parse_args()
-#    if args.r:
-
+    op = OptionParser()
+    op.add_option("-p", "--port", action="store", type=int, default=8080)
+    op.add_option("-l", "--log", action="store", default=None)
+    (opts, args) = op.parse_args()
+    logging.basicConfig(filename=opts.log, level=logging.INFO,
+                        format='[%(asctime)s] %(levelname).1s %(message)s', datefmt='%Y.%m.%d %H:%M:%S')
+    logging.info('Starting server at %s' % '5123')
     run()
 
 
