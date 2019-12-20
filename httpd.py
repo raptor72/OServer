@@ -19,17 +19,15 @@ DOCUMENT_ROOT = 'root'
 def parse_request(request):
     parsed = request.split(' ')
     method = parsed[0]
-#    url = parsed[1]
-    url = parsed[1].split('/')[1]
-#    url = parsed[1].replace('/', '').strip()
+    url = parsed[1]
+    if url.startswith('/'):
+        url = url[1:]
     return (method, url)
 
 
 def parse_content_type(url):
-#    if os.path.isfile(os.path.join(DOCUMENT_ROOT, url.split('/')[1])):
     if os.path.isfile(os.path.join(DOCUMENT_ROOT, url)):
         try:
-#            extension =  url.split('/')[1].split('.')[1]
             extension =  url.split('.')[1]
             if extension in ['html', 'css', 'js', 'jpg', 'jpeg', 'png', 'gif', 'swf']:
                 return extension
@@ -46,9 +44,8 @@ def generate_headers(method, url):
 
     if method not in ['GET', 'HEAD']:
         return ('HTTP/1.1 405 Methd not allowed\n\n', 405)
-    print('url is: ', type(url), len(url), sys.getsizeof(url), url)
-#    if not os.path.exists(os.path.join(DOCUMENT_ROOT, url)):
-    if not os.path.exists(url):
+    print('url is: ', url, 'type is: ', type(url), 'len is: ', len(url), 'bytelen is: ', sys.getsizeof(url))
+    if not os.path.exists(url) and not os.path.exists(os.path.join(DOCUMENT_ROOT, url)):
         return ('HTTP/1.1 404 not found\n\n', 404)
     return (('HTTP/1.1 200 OK' + server + date + content_type + connection + content_tength + '\n\n' , 200))
 
@@ -59,30 +56,32 @@ def render_html(html_file):
 
 
 def generate_content(code, url):
-    print(url)
     if code == 404:
         return '<h1>404</h1><p>Not found</p>'
     if code == 405:
         return '<h1>405</h1><p>Method not allowed</p>'
-#    return '{}'.format(URLS[url])
-#    return '<p>' + ''.join(str(os.listdir(DOCUMENT_ROOT))) + '</p>' # os.path.isfile || os.path.isdir
-#    print(os.path.isfile(os.path.join(DOCUMENT_ROOT, url.split('/')[1])))
 
-#    if os.path.isfile(os.path.join(DOCUMENT_ROOT, url.split('/')[1])):
+    if url == DOCUMENT_ROOT:
+        return '\r\n'.join( '<p>' + repr(e).replace("'", '') + '</p>' for e in os.listdir(url))
 
-    if str(url).strip() == str(DOCUMENT_ROOT):
-        return '\r\n'.join( '<p>' + repr(e).replace("'", '') + '</p>' for e in os.listdir(DOCUMENT_ROOT))
-
-    if os.path.isfile(os.path.join(DOCUMENT_ROOT, url)):
+    if not '/' in url:
+        print('not / in url')
+        if os.path.isfile(os.path.join(DOCUMENT_ROOT, url)):
+            content_type = parse_content_type(url)
+            if content_type == 'html':
+                return render_html(os.path.join(DOCUMENT_ROOT, url))
+    if os.path.isfile(url):
         content_type = parse_content_type(url)
         if content_type == 'html':
-            return render_html(os.path.join(DOCUMENT_ROOT, url))
+            return render_html(url)
+        return '<p>Contetn type of file is' + content_type + '</p>'
 #    if os.path.isdir(os.path.join(DOCUMENT_ROOT, url.split('/')[1])):
 
-    if os.path.isdir(os.path.join(DOCUMENT_ROOT, url)):
-        return '\r\n'.join( '<p>' + repr(e).replace("'", '') + '</p>' for e in os.listdir(DOCUMENT_ROOT))
-    return '<p>Hello world</p>'
-#    return render_html(os.path.join(DOCUMENT_ROOT, url.split('/')[1]))
+
+    if os.path.isdir(url):
+        if os.path.exists(os.path.join(url, 'index.html')):
+            return render_html(os.path.join(url, 'index.html'))
+    return '<p>No such file or directory</p>'
 
 def generate_response(request):
 #    print('request is: ', request) # request is:  GET /test_file HTTP/1.1
@@ -105,8 +104,8 @@ def run():
         print(request)
         print()
         print(addr)
-
-        response = generate_response(request.decode('utf-8'))
+        if request:
+            response = generate_response(request.decode('utf-8'))
 
         client_socket.sendall(response)
         client_socket.close()

@@ -9,7 +9,7 @@ import datetime
 
 DOCUMENT_ROOT = 'root'
 
-url = 'root'
+url = '/root/7777'
 #print(url)
 #print(os.path.join(DOCUMENT_ROOT, url))
 #if not os.path.exists(os.path.join(DOCUMENT_ROOT, url)):
@@ -17,8 +17,11 @@ url = 'root'
 #else:
 #    print('exists')
 
+print(url.split('/')[1:])
 
-print( '\r\n'.join( '<p>' + repr(e).replace("'", '') + '</p>' for e in os.listdir(DOCUMENT_ROOT)))
+
+
+#print( '\r\n'.join( '<p>' + repr(e).replace("'", '') + '</p>' for e in os.listdir(DOCUMENT_ROOT)))
 
 
 #Thu, 19 Dec 2019 07:48:55 GMT\r\n
