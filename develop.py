@@ -7,9 +7,9 @@ import socket
 import argparse
 import datetime
 
-DOCUMENT_ROOT = './document_root'
+DOCUMENT_ROOT = 'root'
 
-url = '2'
+url = 'root'
 #print(url)
 #print(os.path.join(DOCUMENT_ROOT, url))
 #if not os.path.exists(os.path.join(DOCUMENT_ROOT, url)):
@@ -30,12 +30,8 @@ httpdate = time.mktime(now.timetuple())
 
 
 DATE = datetime.datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S GMT')
-
 SERVER = sys.version
-print('python ' + SERVER.split('[')[0].strip() + ' ' +  SERVER.split('[')[1].strip().replace(']', ''))
-
+#print('python ' + SERVER.split('[')[0].strip() + ' ' +  SERVER.split('[')[1].strip().replace(']', ''))
 CONTENT_LENGTH = 'Content-Length: 1234'
-
 CONNECTION = 'Connection: close'
-
 CONTENT_TYPE = 'Content-Type: text/html;charset=UTF-8\r\n'

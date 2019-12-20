@@ -14,42 +14,52 @@ URLS = {
     '/author/3': 'Book 1: 3, Book 2: 3, Book 3: 3, Book 4: 3'
 }
 
-DOCUMENT_ROOT = 'document_root'
+DOCUMENT_ROOT = 'root'
 
 def parse_request(request):
     parsed = request.split(' ')
     method = parsed[0]
-    url = parsed[1]
+#    url = parsed[1]
+    url = parsed[1].split('/')[1]
+#    url = parsed[1].replace('/', '').strip()
     return (method, url)
 
 
 def parse_content_type(url):
-    if os.path.isfile(os.path.join(DOCUMENT_ROOT, url.split('/')[1])):
+#    if os.path.isfile(os.path.join(DOCUMENT_ROOT, url.split('/')[1])):
+    if os.path.isfile(os.path.join(DOCUMENT_ROOT, url)):
         try:
-            extension =  url.split('/')[1].split('.')[1]
+#            extension =  url.split('/')[1].split('.')[1]
+            extension =  url.split('.')[1]
             if extension in ['html', 'css', 'js', 'jpg', 'jpeg', 'png', 'gif', 'swf']:
-                return 'Content-Type: ' + extension + '\r\n'
+                return extension
         except:
-            return 'Content-Type: text/html;charset=UTF-8\r\n'
-    return 'Content-Type: text/html;charset=UTF-8\r\n'
+            return 'text/html;charset=UTF-8'
+    return 'text/html;charset=UTF-8'
 
 def generate_headers(method, url):
-    server = 'Server: python ' + sys.version.split('[')[0].strip() + ' ' +  sys.version.split('[')[1].strip().replace(']', '') + '\r\n'
-    date = 'Date: ' + datetime.datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S GMT') + '\r\n'
-#    content_type = 'Content-Type: text/html;charset=UTF-8\r\n'
-    content_type = parse_content_type(url)
-    connection = 'Connection: close\r\n'
-    content_tength = 'Content-Length: ' + str(sys.getsizeof(url)) + '\r\n'
+    server = 'Server: python ' + sys.version.split('[')[0].strip() + ' ' +  sys.version.split('[')[1].strip().replace(']', '')
+    date = 'Date: ' + datetime.datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S GMT')
+    content_type = 'Content-Type: ' + parse_content_type(url)
+    connection = 'Connection: close'
+    content_tength = 'Content-Length: ' + str(sys.getsizeof(url))
 
     if method not in ['GET', 'HEAD']:
         return ('HTTP/1.1 405 Methd not allowed\n\n', 405)
     print('url is: ', type(url), len(url), sys.getsizeof(url), url)
-    if not os.path.exists(os.path.join(DOCUMENT_ROOT, url.split('/')[1])):
+#    if not os.path.exists(os.path.join(DOCUMENT_ROOT, url)):
+    if not os.path.exists(url):
         return ('HTTP/1.1 404 not found\n\n', 404)
-    return (('HTTP/1.1 200 OK\n\n' + server + date + content_type + connection + content_tength , 200))
+    return (('HTTP/1.1 200 OK' + server + date + content_type + connection + content_tength + '\n\n' , 200))
+
+def render_html(html_file):
+    with open(html_file, 'r') as html:
+        data = html.read()
+    return data
 
 
 def generate_content(code, url):
+    print(url)
     if code == 404:
         return '<h1>404</h1><p>Not found</p>'
     if code == 405:
@@ -57,9 +67,22 @@ def generate_content(code, url):
 #    return '{}'.format(URLS[url])
 #    return '<p>' + ''.join(str(os.listdir(DOCUMENT_ROOT))) + '</p>' # os.path.isfile || os.path.isdir
 #    print(os.path.isfile(os.path.join(DOCUMENT_ROOT, url.split('/')[1])))
-    if os.path.isdir(os.path.join(DOCUMENT_ROOT, url.split('/')[1])):
+
+#    if os.path.isfile(os.path.join(DOCUMENT_ROOT, url.split('/')[1])):
+
+    if str(url).strip() == str(DOCUMENT_ROOT):
+        return '\r\n'.join( '<p>' + repr(e).replace("'", '') + '</p>' for e in os.listdir(DOCUMENT_ROOT))
+
+    if os.path.isfile(os.path.join(DOCUMENT_ROOT, url)):
+        content_type = parse_content_type(url)
+        if content_type == 'html':
+            return render_html(os.path.join(DOCUMENT_ROOT, url))
+#    if os.path.isdir(os.path.join(DOCUMENT_ROOT, url.split('/')[1])):
+
+    if os.path.isdir(os.path.join(DOCUMENT_ROOT, url)):
         return '\r\n'.join( '<p>' + repr(e).replace("'", '') + '</p>' for e in os.listdir(DOCUMENT_ROOT))
     return '<p>Hello world</p>'
+#    return render_html(os.path.join(DOCUMENT_ROOT, url.split('/')[1]))
 
 def generate_response(request):
 #    print('request is: ', request) # request is:  GET /test_file HTTP/1.1
@@ -69,11 +92,11 @@ def generate_response(request):
 
     return (headers + body).encode()
 
-
 def run():
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    server_socket.bind(('127.0.0.1', 5123))
+#    server_socket.bind(('127.0.0.1', 5123))
+    server_socket.bind(('172.17.0.2', 5123))
     server_socket.listen()
 
     while True:
