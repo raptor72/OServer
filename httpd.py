@@ -26,7 +26,7 @@ def parse_request(request):
 
 
 def parse_content_type(url):
-    if os.path.isfile(os.path.join(DOCUMENT_ROOT, url)):
+    if os.path.isfile(os.path.join(DOCUMENT_ROOT, url)) or os.path.isfile(url):
         try:
             extension =  url.split('.')[1]
             if extension in ['html', 'css', 'js', 'jpg', 'jpeg', 'png', 'gif', 'swf']:
@@ -74,9 +74,7 @@ def generate_content(code, url):
         content_type = parse_content_type(url)
         if content_type == 'html':
             return render_html(url)
-        return '<p>Contetn type of file is' + content_type + '</p>'
-#    if os.path.isdir(os.path.join(DOCUMENT_ROOT, url.split('/')[1])):
-
+        return '<p>Contetn type of file is: ' + content_type + '</p>'
 
     if os.path.isdir(url):
         if os.path.exists(os.path.join(url, 'index.html')):
@@ -84,11 +82,9 @@ def generate_content(code, url):
     return '<p>No such file or directory</p>'
 
 def generate_response(request):
-#    print('request is: ', request) # request is:  GET /test_file HTTP/1.1
     method, url = parse_request(request)
     headers, code = generate_headers(method, url)
     body = generate_content(code, url)
-
     return (headers + body).encode()
 
 def run():
