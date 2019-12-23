@@ -9,7 +9,12 @@ import datetime
 from optparse import OptionParser
 
 
-DOCUMENT_ROOT = 'root'
+#DOCUMENT_ROOT = 'root'
+
+
+def parse_document_root(r):
+    return r if r else 'root'
+
 
 def parse_request(request):
     parsed = request.split(' ')
@@ -45,7 +50,7 @@ def generate_headers(method, url):
     return (('HTTP/1.1 200 OK\n' + server + '\n' + date + '\n' + content_type + '\n' + connection + content_length + '\n\n' , 200))
 
 def render_html(html_file):
-    with open(html_file, 'r') as html:
+    with open(html_file, 'r', encoding='utf8') as html:
         data = html.read()
     return data
 
@@ -108,9 +113,11 @@ if __name__ == '__main__':
     op.add_option("-r", "--root", action="store", type=str, default="root")
     op.add_option("-l", "--log", action="store", default=None)
     (opts, args) = op.parse_args()
+    DOCUMENT_ROOT = parse_document_root(opts.root)
     logging.basicConfig(filename=opts.log, level=logging.INFO,
                         format='[%(asctime)s] %(levelname).1s %(message)s', datefmt='%Y.%m.%d %H:%M:%S')
     logging.info('Starting server at %s' % opts.port)
+    logging.info('DOCUMENT_ROOT is %s' % DOCUMENT_ROOT)
     run(opts.port)
 
 
