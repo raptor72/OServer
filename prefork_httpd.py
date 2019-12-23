@@ -10,6 +10,7 @@ from optparse import OptionParser
 import errno
 import signal
 
+DEFAUL_ROOT = 'root'
 
 def catch_zombies(signum, frame):
     while True:
@@ -23,7 +24,7 @@ def catch_zombies(signum, frame):
             raise
 
 def parse_document_root(r):
-    return r if r else 'root'
+    return r if r else DEFAULT_ROOT
 
 
 def parse_request(request):
