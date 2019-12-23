@@ -17,7 +17,7 @@ def parse_request(request):
     url = parsed[1]
     if url.startswith('/'):
         url = url[1:]
-    return (method, url)
+    return (method, url.replace('%20', ' '))
 
 
 def parse_content_type(url):
@@ -86,8 +86,8 @@ def generate_response(request):
 def run(port):
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    server_socket.bind(('127.0.0.1', port))
-#    server_socket.bind(('172.17.0.2', port))
+#    server_socket.bind(('127.0.0.1', port))
+    server_socket.bind(('172.17.0.2', port))
     server_socket.listen()
 
     while True:
@@ -103,10 +103,6 @@ def run(port):
 
 
 if __name__ == '__main__':
-#    parser = argparse.ArgumentParser()
-#    parser.add_argument('-r', help='listing root dir', default=DOCUMENT_ROOT)
-#    parser.add_argument('-l', help='logfile', default=DOCUMENT_ROOT)
-#    args = parser.parse_args()
     op = OptionParser()
     op.add_option("-p", "--port", action="store", type=int, default=5123)
     op.add_option("-r", "--root", action="store", type=str, default="root")
