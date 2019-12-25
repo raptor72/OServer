@@ -7,9 +7,13 @@ import socket
 import argparse
 import datetime
 
-DOCUMENT_ROOT = 'root'
+DOCUMENT_ROOT = 'httptest'
+
 
 url = '/root/7777'
+#url = 'dir1'
+url = '/httptest/dir1/dir12/dir123/deep.txt'
+
 #print(url)
 #print(os.path.join(DOCUMENT_ROOT, url))
 #if not os.path.exists(os.path.join(DOCUMENT_ROOT, url)):
@@ -17,7 +21,7 @@ url = '/root/7777'
 #else:
 #    print('exists')
 
-print(url.split('/')[1:])
+#print(url.split('/')[1:])
 
 
 
@@ -38,3 +42,16 @@ SERVER = sys.version
 CONTENT_LENGTH = 'Content-Length: 1234'
 CONNECTION = 'Connection: close'
 CONTENT_TYPE = 'Content-Type: text/html;charset=UTF-8\r\n'
+
+print(os.getcwd())
+path = os.getcwd()
+#print(os.path.join(p, url))
+print(os.path.exists(path + url ))
+
+def generate_code(url):
+    p = os.getcwd()
+    if not os.path.exists(path + url) and not os.path.exists(os.path.join(DOCUMENT_ROOT, url)):
+        return ('HTTP/1.1 404 not found\n\n', 404)
+    return ('HTTP/1.1 200 OK\r\n', 200)
+
+print(generate_code(url))

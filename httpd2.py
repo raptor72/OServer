@@ -38,16 +38,18 @@ def parse_content_type(url):
 
 
 def generate_code(method, url):
+    path = os.getcwd()
     if method not in ['GET', 'HEAD']:
         return ('HTTP/1.1 405 Methd not allowed\n\n', 405)
     logging.info(f'url is: {url}, type is: {type(url)}, len is:  {len(url)}, bytelen is: {sys.getsizeof(url)}')
-    if not os.path.exists(url) and not os.path.exists(os.path.join(DOCUMENT_ROOT, url)):
+    if not os.path.exists(path + url) and not os.path.exists(os.path.join(DOCUMENT_ROOT, url)):
         return ('HTTP/1.1 404 not found\n\n', 404)
     return ('HTTP/1.1 200 OK\r\n', 200)
 
 
 def render_html(html_file):
-    with open(html_file, 'r', encoding='utf8') as html:
+    with open(html_file, 'rb') as html:
+#    with open(html_file, 'r', encoding='utf8') as html:
         data = html.read()
     return data
 
@@ -61,19 +63,19 @@ def generate_result(response_prase, code, url):
         return '\r\n'.join( '<p>' + repr(e).replace("'", '') + '</p>' for e in os.listdir(url))
     if not '/' in url:
         if os.path.isfile(os.path.join(DOCUMENT_ROOT, url)):
-            content_type = parse_content_type(url)
-            if content_type == 'html':
-                return render_html(os.path.join(DOCUMENT_ROOT, url))
-            return '<p>Content type of file is: ' + content_type + '</p>'
+#            content_type = parse_content_type(url)
+#            if content_type == 'html':
+            return render_html(os.path.join(DOCUMENT_ROOT, url))
+#            return '<p>Content type of file is: ' + content_type + '</p>'
     if os.path.isfile(url):
-        content_type = parse_content_type(url)
-        if content_type == 'html':
-            return render_html(url)
-        return '<p>Content type of file is: ' + content_type + '</p>'
+#        content_type = parse_content_type(url)
+#        if content_type == 'html':
+        return render_html(url)
+#        return '<p>Content type of file is: ' + content_type + '</p>'
     if os.path.isdir(url):
         if os.path.exists(os.path.join(url, 'index.html')):
             return render_html(os.path.join(url, 'index.html'))
-    return '<p>No such file or directory</p>'
+    return b'<p>No such file or directory</p>'
 
 def generate_headers(url, body, code):
     server = 'Server: python ' + sys.version.split('[')[0].strip() + ' ' +  sys.version.split('[')[1].strip().replace(']', '') + '\r\n'
@@ -89,10 +91,13 @@ def generate_response(request):
     response_prase, code = generate_code(method, url)
 #    headers, code = generate_headers(method, url)
     body = generate_result(response_prase, code, url)
+    print(type(body))
     headers = generate_headers(url, body, response_prase)
     logging.info('Headers is %s' % headers)
+
 #    body = generate_content(code, url)
-    return (headers + body).encode()
+#    return (headers + body).encode()
+    return bytes(headers.encode()) + body
 
 def run(port):
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
