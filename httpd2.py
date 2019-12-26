@@ -10,6 +10,17 @@ import urllib.parse
 from optparse import OptionParser
 
 
+CONTENT_TYPES = {
+    'html': 'text/html',
+    'css': 'text/css',
+    'js': 'application/javascript',
+    'jpg': 'image/jpeg',
+    'jpeg': 'image/jpeg',
+    'png': 'image/png',
+    'gif': 'image/gif',
+    'swf': 'application/x-shockwave-flash',
+}
+
 def parse_document_root(r):
 #    return r if r else '/'
     return r if r else os.getcwd()
@@ -33,8 +44,9 @@ def parse_content_type(url):
     if os.path.isfile(os.path.join(DOCUMENT_ROOT, url)) or os.path.isfile(url):
         try:
             extension =  url.split('.')[1]
-            if extension in ['html', 'css', 'js', 'jpg', 'jpeg', 'png', 'gif', 'swf']:
-                return extension
+#            if extension in ['html', 'css', 'js', 'jpg', 'jpeg', 'png', 'gif', 'swf']:
+            if extension in CONTENT_TYPES.keys():
+                return CONTENT_TYPES[extension]
         except:
             return 'text/html;charset=UTF-8'
     return 'text/html;charset=UTF-8'
@@ -63,18 +75,19 @@ def render_html(html_file):
     with open(html_file, 'rb') as html:
 #    with open(html_file, 'r', encoding='utf8') as html:
         data = html.read()
-    try:
-        data = data.decode('utf8')
-    except UnicodeDecodeError:
-        data = str(data)
+#    try:
+#        data = data.decode('utf8')
+#    except UnicodeDecodeError:
+#        data = str(data)
     return data
+#    return data.decode('utf8')
 
 def generate_result(code, url):
     logging.info(f'code is: {code}, url is: {url}')
     if code == 404:
-        return '<h1>404</h1><p>Not found</p>'
+        return b'<h1>404</h1><p>Not found</p>'
     if code == 405:
-        return '<h1>405</h1><p>Method not allowed</p>'
+        return b'<h1>405</h1><p>Method not allowed</p>'
     if url == DOCUMENT_ROOT:
         return '\r\n'.join( '<p>' + repr(e).replace("'", '') + '</p>' for e in os.listdir(url))
     if not '/' in url:
@@ -91,7 +104,7 @@ def generate_result(code, url):
     if os.path.isdir(url):
         if os.path.exists(os.path.join(url, 'index.html')):
             return render_html(os.path.join(url, 'index.html'))
-    return '<p>No such file or directory</p>'
+    return b'<p>No such file or directory</p>'
 
 def generate_headers(url, body, response_prase):
     server = 'Server: python ' + sys.version.split('[')[0].strip() + ' ' +  sys.version.split('[')[1].strip().replace(']', '') + '\r\n'
@@ -114,8 +127,8 @@ def generate_response(request):
     logging.info('Headers is %s' % headers)
 
 #    body = generate_content(code, url)
-    return (headers + body).encode()
-#    return headers + body
+#    return (headers + body).encode()
+    return headers.encode() + body
 
 def run(port):
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
