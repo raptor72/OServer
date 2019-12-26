@@ -16,13 +16,13 @@ DOCUMENT_ROOT = os.getcwd()
 #DOCUMENT_ROOT = ''
 
 #url = '/root/7777'
-#url = 'httptest/dir1'
-url = 'httptest/dir1/dir12/dir123/deep.txt'
+url = 'httptest/dir1'
+#url = 'httptest/dir1/dir12/dir123/deep.txt'
 #url = 'httptest/dir2/'
 #url = '/httptest/dir4/'
 #url =  'httptest/../../../../../../../../../../../../../etc/passwd' #"""document root escaping forbidden"""
 #url = '/httptest/dir2/%70%61%67%65%2e%68%74%6d%6c'
-url = 'httptest/dir2/page.html?arg1=value&arg2=value'
+#url = 'httptest/dir2/page.html?arg1=value&arg2=value'
 
 #print(urllib.parse.unquote(url))
 #print(os.path.join(DOCUMENT_ROOT, url))
@@ -99,8 +99,6 @@ def generate_code(method, url):
         if not os.path.exists(os.path.join(DOCUMENT_ROOT, url, 'index.html')):
             return ('HTTP/1.1 404 not found\r\n', 404)
 
-
-        return ('HTTP/1.1 404 not found\r\n', 404)
     return ('HTTP/1.1 200 OK\r\n', 200)
 
 

@@ -51,6 +51,11 @@ def generate_code(method, url):
 #    if not os.path.exists(os.path.join(DOCUMENT_ROOT, url)) and not os.path.exists(os.path.join(DOCUMENT_ROOT, url, 'index.html')):
     if not os.path.exists(os.path.join(DOCUMENT_ROOT, url)) or not os.path.abspath(os.path.join(DOCUMENT_ROOT, url)).startswith(DOCUMENT_ROOT):
         return ('HTTP/1.1 404 not found\r\n', 404)
+
+    if os.path.isdir(os.path.join(DOCUMENT_ROOT, url)):
+        if not os.path.exists(os.path.join(DOCUMENT_ROOT, url, 'index.html')):
+            return ('HTTP/1.1 404 not found\r\n', 404)
+
     return ('HTTP/1.1 200 OK\r\n', 200)
 
 
