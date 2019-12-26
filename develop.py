@@ -16,11 +16,11 @@ DOCUMENT_ROOT = os.getcwd()
 #DOCUMENT_ROOT = ''
 
 #url = '/root/7777'
-#url = '/dir1'
+#url = 'httptest/dir1'
 url = 'httptest/dir1/dir12/dir123/deep.txt'
 #url = 'httptest/dir2/'
 #url = '/httptest/dir4/'
-url =  'httptest/../../../../../../../../../../../../../etc/passwd' #"""document root escaping forbidden"""
+#url =  'httptest/../../../../../../../../../../../../../etc/passwd' #"""document root escaping forbidden"""
 #url = '/httptest/dir2/%70%61%67%65%2e%68%74%6d%6c'
 url = 'httptest/dir2/page.html?arg1=value&arg2=value'
 
@@ -83,9 +83,9 @@ def generate_code(method, url):
     if method not in ['GET', 'HEAD']:
         return ('HTTP/1.1 405 Methd not allowed\r\n', 405)
     joi = os.path.join(DOCUMENT_ROOT, url)
-    print(joi)
-    print(os.path.realpath(joi))
-    print(os.path.isabs(joi))
+#    print(joi)
+#    print(os.path.realpath(joi))
+#    print(os.path.isabs(joi))
     logging.info(f'url is: {url}, type is: {type(url)}, len is:  {len(url)}, bytelen is: {sys.getsizeof(url)}')
 #    if not os.path.exists(path + url) and not os.path.exists(os.path.join(DOCUMENT_ROOT, url)): # and not os.path.exists(path + url + 'index.html'):
 #    if not os.path.exists(os.path.join(DOCUMENT_ROOT, url)) and not os.path.exists(os.path.join(DOCUMENT_ROOT, url, 'index.html')):
@@ -94,6 +94,11 @@ def generate_code(method, url):
 #    if not os.path.exists(os.path.join(DOCUMENT_ROOT, url)) and not os.path.exists(DOCUMENT_ROOT + url):
     if not os.path.exists(joi) or not os.path.abspath(joi).startswith(DOCUMENT_ROOT):
 #    if not os.path.exists(os.path.join(DOCUMENT_ROOT, url)) and not os.path.exists(os.path.join(DOCUMENT_ROOT, url, 'index.html')):
+        return ('HTTP/1.1 404 not found\r\n', 404)
+    if os.path.isdir(os.path.join(DOCUMENT_ROOT, url)):
+        if not os.path.exists(os.path.join(DOCUMENT_ROOT, url, 'index.html')):
+            return ('HTTP/1.1 404 not found\r\n', 404)
+
 
         return ('HTTP/1.1 404 not found\r\n', 404)
     return ('HTTP/1.1 200 OK\r\n', 200)
