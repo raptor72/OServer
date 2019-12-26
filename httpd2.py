@@ -22,10 +22,8 @@ CONTENT_TYPES = {
 }
 
 def parse_document_root(r):
-#    return r if r else '/'
     return r if r else os.getcwd()
 
-#urllib.parse.unquote(url)
 
 def parse_request(request):
     parsed = request.split(' ')
@@ -39,12 +37,10 @@ def parse_request(request):
         return method, ''
 
 
-
 def parse_content_type(url):
     if os.path.isfile(os.path.join(DOCUMENT_ROOT, url)) or os.path.isfile(url):
         try:
-            extension =  url.split('.')[1]
-#            if extension in ['html', 'css', 'js', 'jpg', 'jpeg', 'png', 'gif', 'swf']:
+            extension =  url.split('.')[-1]
             if extension in CONTENT_TYPES.keys():
                 return CONTENT_TYPES[extension]
         except:
@@ -53,34 +49,22 @@ def parse_content_type(url):
 
 
 def generate_code(method, url):
-#    path = os.getcwd()
     if method not in ['GET', 'HEAD']:
         return ('HTTP/1.1 405 Methd not allowed\r\n', 405)
     logging.info(f'url is: {url}, type is: {type(url)}, len is:  {len(url)}, bytelen is: {sys.getsizeof(url)}')
-#    if not os.path.exists(path + url) and not os.path.exists(os.path.join(DOCUMENT_ROOT, url)):
-#    if not os.path.exists(path + url) and not os.path.exists(os.path.join(DOCUMENT_ROOT, url)) and not os.path.exists(os.path.join(path, url)): #uncorrect document root escaping forbidden
-#    if not os.path.exists(os.path.join(DOCUMENT_ROOT, url)) and not os.path.exists(os.path.join(path, DOCUMENT_ROOT, url)):
-#    if not os.path.exists(os.path.join(DOCUMENT_ROOT, url)) and not os.path.exists(os.path.join(DOCUMENT_ROOT, url, 'index.html')):
     if not os.path.exists(os.path.join(DOCUMENT_ROOT, url)) or not os.path.abspath(os.path.join(DOCUMENT_ROOT, url)).startswith(DOCUMENT_ROOT):
         return ('HTTP/1.1 404 not found\r\n', 404)
-
     if os.path.isdir(os.path.join(DOCUMENT_ROOT, url)):
         if not os.path.exists(os.path.join(DOCUMENT_ROOT, url, 'index.html')):
             return ('HTTP/1.1 404 not found\r\n', 404)
-
     return ('HTTP/1.1 200 OK\r\n', 200)
 
 
 def render_html(html_file):
     with open(html_file, 'rb') as html:
-#    with open(html_file, 'r', encoding='utf8') as html:
         data = html.read()
-#    try:
-#        data = data.decode('utf8')
-#    except UnicodeDecodeError:
-#        data = str(data)
     return data
-#    return data.decode('utf8')
+
 
 def generate_result(code, url):
     logging.info(f'code is: {code}, url is: {url}')
@@ -92,15 +76,9 @@ def generate_result(code, url):
         return '\r\n'.join( '<p>' + repr(e).replace("'", '') + '</p>' for e in os.listdir(url))
     if not '/' in url:
         if os.path.isfile(os.path.join(DOCUMENT_ROOT, url)):
-#            content_type = parse_content_type(url)
-#            if content_type == 'html':
             return render_html(os.path.join(DOCUMENT_ROOT, url))
-#            return '<p>Content type of file is: ' + content_type + '</p>'
     if os.path.isfile(url):
-#        content_type = parse_content_type(url)
-#        if content_type == 'html':
         return render_html(url)
-#        return '<p>Content type of file is: ' + content_type + '</p>'
     if os.path.isdir(url):
         if os.path.exists(os.path.join(url, 'index.html')):
             return render_html(os.path.join(url, 'index.html'))
@@ -122,7 +100,6 @@ def generate_response(request):
     logging.info('code is %s' % code)
 #    headers, code = generate_headers(method, url)
     body = generate_result(code, url)
-#    print(type(body))
     headers = generate_headers(url, body, response_prase)
     logging.info('Headers is %s' % headers)
 
