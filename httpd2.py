@@ -10,8 +10,8 @@ from optparse import OptionParser
 
 
 def parse_document_root(r):
-    return r if r else 'root'
-
+#    return r if r else '/'
+    return r if r else os.getcwd()
 
 def parse_request(request):
     parsed = request.split(' ')
@@ -38,13 +38,15 @@ def parse_content_type(url):
 
 
 def generate_code(method, url):
-    path = os.getcwd()
+#    path = os.getcwd()
     if method not in ['GET', 'HEAD']:
         return ('HTTP/1.1 405 Methd not allowed\r\n', 405)
     logging.info(f'url is: {url}, type is: {type(url)}, len is:  {len(url)}, bytelen is: {sys.getsizeof(url)}')
 #    if not os.path.exists(path + url) and not os.path.exists(os.path.join(DOCUMENT_ROOT, url)):
-    if not os.path.exists(path + url) and not os.path.exists(os.path.join(DOCUMENT_ROOT, url)) and not os.path.exists(os.path.join(path, url)): #uncorrect document root escaping forbidden
-#    if not os.path.exists(os.path.join(DOCUMENT_ROOT, url)):
+#    if not os.path.exists(path + url) and not os.path.exists(os.path.join(DOCUMENT_ROOT, url)) and not os.path.exists(os.path.join(path, url)): #uncorrect document root escaping forbidden
+#    if not os.path.exists(os.path.join(DOCUMENT_ROOT, url)) and not os.path.exists(os.path.join(path, DOCUMENT_ROOT, url)):
+#    if not os.path.exists(os.path.join(DOCUMENT_ROOT, url)) and not os.path.exists(os.path.join(DOCUMENT_ROOT, url, 'index.html')):
+    if not os.path.exists(os.path.join(DOCUMENT_ROOT, url)) or not os.path.abspath(os.path.join(DOCUMENT_ROOT, url)).startswith(DOCUMENT_ROOT):
         return ('HTTP/1.1 404 not found\r\n', 404)
     return ('HTTP/1.1 200 OK\r\n', 200)
 
@@ -62,9 +64,9 @@ def render_html(html_file):
 def generate_result(code, url):
     logging.info(f'code is: {code}, url is: {url}')
     if code == 404:
-        body = '<h1>404</h1><p>Not found</p>'
+        return '<h1>404</h1><p>Not found</p>'
     if code == 405:
-        body = '<h1>405</h1><p>Method not allowed</p>'
+        return '<h1>405</h1><p>Method not allowed</p>'
     if url == DOCUMENT_ROOT:
         return '\r\n'.join( '<p>' + repr(e).replace("'", '') + '</p>' for e in os.listdir(url))
     if not '/' in url:
@@ -128,7 +130,7 @@ def run(port):
 if __name__ == '__main__':
     op = OptionParser()
     op.add_option("-p", "--port", action="store", type=int, default=5123)
-    op.add_option("-r", "--root", action="store", type=str, default="root")
+    op.add_option("-r", "--root", action="store", type=str)
     op.add_option("-l", "--log", action="store", default=None)
     (opts, args) = op.parse_args()
     DOCUMENT_ROOT = parse_document_root(opts.root)
