@@ -5,6 +5,7 @@ import sys
 import socket
 import logging
 import datetime
+import urllib.parse
 
 from optparse import OptionParser
 
@@ -13,14 +14,16 @@ def parse_document_root(r):
 #    return r if r else '/'
     return r if r else os.getcwd()
 
+#urllib.parse.unquote(url)
+
 def parse_request(request):
     parsed = request.split(' ')
     method = parsed[0]
     try:
         url = parsed[1]
         if url.startswith('/'):
-            url = url[1:]
-        return (method, url.replace('%20', ' '))
+            url = urllib.parse.unquote(url[1:])
+        return (method, urllib.parse.unquote( url.replace('%20', ' '))  )
     except:
         return method, ''
 
