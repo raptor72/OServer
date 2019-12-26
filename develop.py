@@ -22,8 +22,9 @@ url = 'httptest/dir1/dir12/dir123/deep.txt'
 #url = '/httptest/dir4/'
 url =  'httptest/../../../../../../../../../../../../../etc/passwd' #"""document root escaping forbidden"""
 #url = '/httptest/dir2/%70%61%67%65%2e%68%74%6d%6c'
+url = 'httptest/dir2/page.html?arg1=value&arg2=value'
 
-print(urllib.parse.unquote(url))
+#print(urllib.parse.unquote(url))
 #print(os.path.join(DOCUMENT_ROOT, url))
 #if not os.path.exists(os.path.join(DOCUMENT_ROOT, url)):
 #    print('false')

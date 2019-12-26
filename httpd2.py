@@ -20,7 +20,7 @@ def parse_request(request):
     parsed = request.split(' ')
     method = parsed[0]
     try:
-        url = parsed[1]
+        url = parsed[1].split('?')[0]
         if url.startswith('/'):
             url = urllib.parse.unquote(url[1:])
         return (method, urllib.parse.unquote( url.replace('%20', ' '))  )
