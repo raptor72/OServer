@@ -42,7 +42,9 @@ def generate_code(method, url):
     if method not in ['GET', 'HEAD']:
         return ('HTTP/1.1 405 Methd not allowed\r\n', 405)
     logging.info(f'url is: {url}, type is: {type(url)}, len is:  {len(url)}, bytelen is: {sys.getsizeof(url)}')
-    if not os.path.exists(path + url) and not os.path.exists(os.path.join(DOCUMENT_ROOT, url)):
+#    if not os.path.exists(path + url) and not os.path.exists(os.path.join(DOCUMENT_ROOT, url)):
+    if not os.path.exists(path + url) and not os.path.exists(os.path.join(DOCUMENT_ROOT, url)) and not os.path.exists(os.path.join(path, url)): #uncorrect document root escaping forbidden
+#    if not os.path.exists(os.path.join(DOCUMENT_ROOT, url)):
         return ('HTTP/1.1 404 not found\r\n', 404)
     return ('HTTP/1.1 200 OK\r\n', 200)
 
@@ -58,6 +60,7 @@ def render_html(html_file):
     return data
 
 def generate_result(code, url):
+    logging.info(f'code is: {code}, url is: {url}')
     if code == 404:
         body = '<h1>404</h1><p>Not found</p>'
     if code == 405:
@@ -92,6 +95,8 @@ def generate_headers(url, body, response_prase):
 def generate_response(request):
     method, url = parse_request(request)
     response_prase, code = generate_code(method, url)
+    logging.info('response_prase is %s' % response_prase)
+    logging.info('code is %s' % code)
 #    headers, code = generate_headers(method, url)
     body = generate_result(code, url)
 #    print(type(body))
@@ -105,8 +110,8 @@ def generate_response(request):
 def run(port):
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-#    server_socket.bind(('127.0.0.1', port))
-    server_socket.bind(('172.17.0.2', port))
+    server_socket.bind(('127.0.0.1', port))
+#    server_socket.bind(('172.17.0.2', port))
     server_socket.listen()
 
     while True:
