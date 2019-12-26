@@ -48,10 +48,24 @@ path = os.getcwd()
 #print(os.path.join(p, url))
 print(os.path.exists(path + url ))
 
-def generate_code(url):
-    p = os.getcwd()
+def generate_code(method, url):
+    path = os.getcwd()
+    if method not in ['GET', 'HEAD']:
+        return ('HTTP/1.1 405 Methd not allowed\r\n', 405)
+#    logging.info(f'url is: {url}, type is: {type(url)}, len is:  {len(url)}, bytelen is: {sys.getsizeof(url)}')
     if not os.path.exists(path + url) and not os.path.exists(os.path.join(DOCUMENT_ROOT, url)):
-        return ('HTTP/1.1 404 not found\n\n', 404)
+        return ('HTTP/1.1 404 not found\r\n', 404)
     return ('HTTP/1.1 200 OK\r\n', 200)
 
-print(generate_code(url))
+print(generate_code('GET', url))
+
+def render_html(html_file):
+    with open(html_file, 'rb') as html:
+#    with open(html_file, 'r', encoding='utf8') as html:
+        data = html.read()
+    return data.decode('utf8')
+
+#print(render_html(path + url))
+
+
+

@@ -40,10 +40,10 @@ def parse_content_type(url):
 def generate_code(method, url):
     path = os.getcwd()
     if method not in ['GET', 'HEAD']:
-        return ('HTTP/1.1 405 Methd not allowed\n\n', 405)
+        return ('HTTP/1.1 405 Methd not allowed\r\n', 405)
     logging.info(f'url is: {url}, type is: {type(url)}, len is:  {len(url)}, bytelen is: {sys.getsizeof(url)}')
     if not os.path.exists(path + url) and not os.path.exists(os.path.join(DOCUMENT_ROOT, url)):
-        return ('HTTP/1.1 404 not found\n\n', 404)
+        return ('HTTP/1.1 404 not found\r\n', 404)
     return ('HTTP/1.1 200 OK\r\n', 200)
 
 
@@ -51,10 +51,13 @@ def render_html(html_file):
     with open(html_file, 'rb') as html:
 #    with open(html_file, 'r', encoding='utf8') as html:
         data = html.read()
+    try:
+        data = data.decode('utf8')
+    except UnicodeDecodeError:
+        data = str(data)
     return data
 
-
-def generate_result(response_prase, code, url):
+def generate_result(code, url):
     if code == 404:
         body = '<h1>404</h1><p>Not found</p>'
     if code == 405:
@@ -75,35 +78,35 @@ def generate_result(response_prase, code, url):
     if os.path.isdir(url):
         if os.path.exists(os.path.join(url, 'index.html')):
             return render_html(os.path.join(url, 'index.html'))
-    return b'<p>No such file or directory</p>'
+    return '<p>No such file or directory</p>'
 
-def generate_headers(url, body, code):
+def generate_headers(url, body, response_prase):
     server = 'Server: python ' + sys.version.split('[')[0].strip() + ' ' +  sys.version.split('[')[1].strip().replace(']', '') + '\r\n'
     date = 'Date: ' + datetime.datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S GMT') + '\r\n'
     content_type = 'Content-Type: ' + parse_content_type(url) + '\r\n'
     content_length = 'Content-Length: ' + str(len(body)) + '\r\n'
     connection = 'Connection: close\r\n\r\n'
-    headers = code + server + date + content_type + content_length + connection
+    headers = response_prase + server + date + content_type + content_length + connection
     return headers
 
 def generate_response(request):
     method, url = parse_request(request)
     response_prase, code = generate_code(method, url)
 #    headers, code = generate_headers(method, url)
-    body = generate_result(response_prase, code, url)
-    print(type(body))
+    body = generate_result(code, url)
+#    print(type(body))
     headers = generate_headers(url, body, response_prase)
     logging.info('Headers is %s' % headers)
 
 #    body = generate_content(code, url)
-#    return (headers + body).encode()
-    return bytes(headers.encode()) + body
+    return (headers + body).encode()
+#    return headers + body
 
 def run(port):
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    server_socket.bind(('127.0.0.1', port))
-#    server_socket.bind(('172.17.0.2', port))
+#    server_socket.bind(('127.0.0.1', port))
+    server_socket.bind(('172.17.0.2', port))
     server_socket.listen()
 
     while True:
@@ -113,8 +116,7 @@ def run(port):
         logging.info('addres is: %s', addr)
         if request:
             response = generate_response(request.decode('utf-8'))
-
-        client_socket.sendall(response)
+            client_socket.sendall(response)
         client_socket.close()
 
 
