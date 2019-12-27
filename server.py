@@ -4,8 +4,6 @@ import os
 import sys
 import socket
 import logging
-import datetime
-import urllib.parse
 
 from handler import Handler
 from optparse import OptionParser
@@ -28,10 +26,7 @@ class Server:
         while True:
             client_socket, addr = self.server_socket.accept()
             request = client_socket.recv(1024)
-#            handler = Handler(request, DOCUMENT_ROOT)
             handler = self.handler(request, self.root_dir)
-#            logging.info('request is: %s', request)
-#            logging.info('addres is: %s', addr)
             if request:
                 response = handler.generate_response(request.decode())
                 client_socket.sendall(response)

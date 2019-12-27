@@ -2,15 +2,14 @@
 
 import os
 import sys
+import errno
 import socket
 import logging
-import datetime
-import urllib.parse
-
+#import datetime
+#import urllib.parse
 from handler import Handler
 from optparse import OptionParser
 
-import errno
 
 class Server:
 
@@ -53,7 +52,6 @@ class Server:
 
         for pid in workers:
             os.waitpid(pid, 0)
-
 
 if __name__ == '__main__':
     op = OptionParser()
