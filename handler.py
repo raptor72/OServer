@@ -23,7 +23,7 @@ CONTENT_TYPES = {
 class Handler:
 
     def __init__(self, request, root_dir):
-        self.addr = request
+        self.request = request
         self.root_dir = root_dir
         self.base = os.getcwd()
         self.full_path = os.path.normpath(self.base + self.root_dir)
