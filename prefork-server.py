@@ -48,6 +48,7 @@ class Server:
                     if request:
                         response = handler.generate_response(request.decode())
                         client_socket.sendall(response)
+                    client_socket.close()
         self.server_socket.close()
 
         for pid in workers:
