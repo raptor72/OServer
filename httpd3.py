@@ -25,6 +25,7 @@ BASE = os.getcwd()
 DOCUMENT_ROOT = '/'
 full_path = os.path.normpath(BASE + DOCUMENT_ROOT)
 
+
 def parse_request(request):
     parsed = request.split(' ')
     method = parsed[0]
@@ -38,7 +39,7 @@ def parse_request(request):
 
 
 def parse_content_type(url):
-    if os.path.isfile(os.path.join(full_path, url)): # or os.path.isfile(BASE + DOCUMENT_ROOT + url):
+    if os.path.isfile(os.path.join(full_path, url)):
         try:
             extension =  url.split('.')[-1]
             if extension in CONTENT_TYPES.keys():
@@ -99,13 +100,11 @@ def generate_response(request):
     response_prase, code = generate_code(method, url)
     logging.info('response_prase is %s' % response_prase)
     logging.info('code is %s' % code)
-#    headers, code = generate_headers(method, url)
     body = generate_result(code, url)
     headers = generate_headers(url, body, response_prase)
     logging.info('Headers is %s' % headers)
-
-#    body = generate_content(code, url)
-#    return (headers + body).encode()
+    if method == 'HEAD':
+        return headers.encode()
     return headers.encode() + body
 
 def run(port):
@@ -132,7 +131,6 @@ if __name__ == '__main__':
     op.add_option("-r", "--root", action="store", type=str, default='/')
     op.add_option("-l", "--log", action="store", default=None)
     (opts, args) = op.parse_args()
-#    DOCUMENT_ROOT = parse_document_root(opts.root)
     DOCUMENT_ROOT = opts.root
     logging.basicConfig(filename=opts.log, level=logging.INFO,
                         format='[%(asctime)s] %(levelname).1s %(message)s', datefmt='%Y.%m.%d %H:%M:%S')
