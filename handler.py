@@ -50,10 +50,11 @@ class Handler:
     def generate_code(self, method, url):
         if method not in ['GET', 'HEAD']:
             return ('HTTP/1.1 405 Methd not allowed\r\n', 405)
-        if not os.path.exists(os.path.join(self.full_path, url)) or not os.path.abspath(os.path.join(self.full_path, url)).startswith(self.base):
+        path = os.path.join(self.full_path, url)
+        if not os.path.exists(path) or not os.path.abspath(path).startswith(self.base):
             return ('HTTP/1.1 404 not found\r\n', 404)
-        if os.path.isdir(os.path.join(self.full_path, url)) and '/' + url != self.root_dir:
-            if not os.path.exists(os.path.join(self.full_path, url, 'index.html')):
+        if os.path.isdir(path) and '/' + url != self.root_dir:
+            if not os.path.exists(os.path.join(path, 'index.html')):
                 return ('HTTP/1.1 404 not found\r\n', 404)
         return ('HTTP/1.1 200 OK\r\n', 200)
 
@@ -67,9 +68,9 @@ class Handler:
             return b'<h1>404</h1><p>Not found</p>'
         if code == 405:
             return b'<h1>405</h1><p>Method not allowed</p>'
-        if '/' + url == self.root_dir:
-             return bytes( '\r\n'.join( '<p>' + repr(e).replace("'", '') + '</p>' for e in os.listdir(os.path.join(self.full_path, url))).encode())
         path = os.path.join(self.full_path, url)
+        if '/' + url == self.root_dir:
+             return bytes( '\r\n'.join( '<p>' + repr(e).replace("'", '') + '</p>' for e in os.listdir(path)).encode())
         if not '/' in url:
             if os.path.isfile(path):
                 return self.render_html(path)
