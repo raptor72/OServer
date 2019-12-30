@@ -19,7 +19,6 @@ CONTENT_TYPES = {
 
 
 class Handler:
-
     def __init__(self, request, root_dir):
         self.request = request
         self.root_dir = root_dir
@@ -70,7 +69,7 @@ class Handler:
             return b'<h1>405</h1><p>Method not allowed</p>'
         path = os.path.join(self.full_path, url)
         if '/' + url == self.root_dir:
-             return bytes( '\r\n'.join( '<p>' + repr(e).replace("'", '') + '</p>' for e in os.listdir(path)).encode())
+             return bytes('\r\n'.join( '<p>' + repr(e).replace("'", '') + '</p>' for e in os.listdir(path)).encode())
         if not '/' in url:
             if os.path.isfile(path):
                 return self.render_html(path)
@@ -80,8 +79,6 @@ class Handler:
             if os.path.exists(os.path.join(path, 'index.html')):
                 return self.render_html(os.path.join(path, 'index.html'))
         return b'<p>No such file or directory</p>'
-
-
 
     def generate_headers(self, url, body, response_prase):
         server = 'Server: python ' + sys.version.split('[')[0].strip() + ' ' +  sys.version.split('[')[1].strip().replace(']', '') + '\r\n'
