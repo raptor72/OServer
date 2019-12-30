@@ -44,7 +44,8 @@ class Handler:
             return method, ''
 
     def parse_content_type(self, url):
-        if os.path.isfile(os.path.join(self.full_path, url)):
+#        if os.path.isfile(os.path.join(self.full_path, url)):
+        if os.path.isfile(self.full_path + url):
             try:
                 extension =  url.split('.')[-1]
                 if extension in CONTENT_TYPES.keys():

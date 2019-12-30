@@ -66,8 +66,8 @@ if __name__ == '__main__':
     logging.info('Starting server at %s' % opts.port)
     logging.info('DOCUMENT_ROOT is %s' % DOCUMENT_ROOT)
 
-#    server = Server('127.0.0.1', opts.port, DOCUMENT_ROOT, opts.worker)
-    server = Server('172.17.0.2', opts.port, DOCUMENT_ROOT, opts.worker)
+    server = Server('127.0.0.1', opts.port, DOCUMENT_ROOT, opts.worker)
+#    server = Server('172.17.0.2', opts.port, DOCUMENT_ROOT, opts.worker)
     server.run()
 
 
