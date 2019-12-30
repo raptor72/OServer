@@ -52,7 +52,7 @@ class Handler:
         path = os.path.join(self.full_path, url)
         if not os.path.exists(path) or not os.path.abspath(path).startswith(self.base):
             return ('HTTP/1.1 404 not found\r\n', 404)
-        if os.path.isdir(path) and '/' + url != self.root_dir:
+        if os.path.isdir(path) and path != self.full_path + '/':
             if not os.path.exists(os.path.join(path, 'index.html')):
                 return ('HTTP/1.1 404 not found\r\n', 404)
         return ('HTTP/1.1 200 OK\r\n', 200)
@@ -68,7 +68,7 @@ class Handler:
         if code == 405:
             return b'<h1>405</h1><p>Method not allowed</p>'
         path = os.path.join(self.full_path, url)
-        if '/' + url == self.root_dir:
+        if path == self.full_path + '/':
              return bytes('\r\n'.join( '<p>' + repr(e).replace("'", '') + '</p>' for e in os.listdir(path)).encode())
         if not '/' in url:
             if os.path.isfile(path):
