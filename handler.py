@@ -30,14 +30,12 @@ class Handler:
         method = parsed[0]
         try:
             url = parsed[1].split('?')[0]
-            if url.startswith('/'):
-                url = urllib.parse.unquote(url[1:])
             return (method, urllib.parse.unquote(url.replace('%20', ' ')))
         except:
             return method, ''
 
     def parse_content_type(self, url):
-        if os.path.isfile(os.path.join(self.full_path, url)):
+        if os.path.isfile(self.full_path + url):
             try:
                 extension =  url.split('.')[-1]
                 if extension in CONTENT_TYPES.keys():
@@ -49,7 +47,7 @@ class Handler:
     def generate_code(self, method, url):
         if method not in ['GET', 'HEAD']:
             return ('HTTP/1.1 405 Methd not allowed\r\n', 405)
-        path = os.path.join(self.full_path, url)
+        path = self.full_path + url
         if not os.path.exists(path) or not os.path.abspath(path).startswith(self.base):
             return ('HTTP/1.1 404 not found\r\n', 404)
         if os.path.isdir(path) and path != self.full_path + '/':
@@ -67,7 +65,7 @@ class Handler:
             return b'<h1>404</h1><p>Not found</p>'
         if code == 405:
             return b'<h1>405</h1><p>Method not allowed</p>'
-        path = os.path.join(self.full_path, url)
+        path = self.full_path + url
         if path == self.full_path + '/':
              return bytes('\r\n'.join( '<p>' + repr(e).replace("'", '') + '</p>' for e in os.listdir(path)).encode())
         if not '/' in url:

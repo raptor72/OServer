@@ -56,12 +56,12 @@ if __name__ == '__main__':
     op.add_option("-r", "--root", action="store", type=str, default='/')
     op.add_option("-w", "--worker", type=int, default=1)
     (opts, args) = op.parse_args()
-    DOCUMENT_ROOT = opts.root
+    DOCUMENT_ROOT = opts.root if opts.root.startswith('/') else '/' + opts.root
     logging.basicConfig(level=logging.INFO,
                         format='[%(asctime)s] %(levelname).1s %(message)s', datefmt='%Y.%m.%d %H:%M:%S')
     logging.info('Starting server at %s' % opts.port)
-#    logging.info('DOCUMENT_ROOT is %s' % DOCUMENT_ROOT)
-#    server = Server('127.0.0.1', opts.port, opts.root, opts.worker)
-    server = Server('172.17.0.2', opts.port, DOCUMENT_ROOT, opts.worker)
+    logging.info('DOCUMENT_ROOT is %s' % DOCUMENT_ROOT)
+    server = Server('127.0.0.1', opts.port, DOCUMENT_ROOT, opts.worker)
+#    server = Server('172.17.0.2', opts.port, DOCUMENT_ROOT, opts.worker)
     server.run()
 
