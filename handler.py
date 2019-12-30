@@ -2,6 +2,7 @@
 
 import os
 import sys
+import logging
 import datetime
 import urllib.parse
 
@@ -25,6 +26,8 @@ class Handler:
         self.root_dir = root_dir
         self.base = os.getcwd()
         self.full_path = os.path.normpath(self.base + self.root_dir)
+#        self.full_path = os.path.normpath(os.path.join(self.base + self.root_dir))
+        logging.info(f'full_path is: {self.full_path}')
 
     def parse_request(self, request):
         parsed = request.split(' ')
@@ -52,8 +55,11 @@ class Handler:
             return ('HTTP/1.1 405 Methd not allowed\r\n', 405)
         path = os.path.join(self.full_path, url)
         if not os.path.exists(path) or not os.path.abspath(path).startswith(self.base):
+            logging.info('not os.path.exists(path) or not os.path.abspath(path).startswith(self.base)')
             return ('HTTP/1.1 404 not found\r\n', 404)
-        if os.path.isdir(path) and '/' + url != self.root_dir:
+        logging.info(f'base is: {self.base}')
+        if os.path.isdir(path) and path != self.full_path + '/':
+            logging.info('directory')
             if not os.path.exists(os.path.join(path, 'index.html')):
                 return ('HTTP/1.1 404 not found\r\n', 404)
         return ('HTTP/1.1 200 OK\r\n', 200)
@@ -69,7 +75,9 @@ class Handler:
         if code == 405:
             return b'<h1>405</h1><p>Method not allowed</p>'
         path = os.path.join(self.full_path, url)
-        if '/' + url == self.root_dir:
+        logging.info(f'URL is: {url}')
+#        if '/' + url == self.full_path:
+        if path == self.full_path + '/':
              return bytes( '\r\n'.join( '<p>' + repr(e).replace("'", '') + '</p>' for e in os.listdir(path)).encode())
         if not '/' in url:
             if os.path.isfile(path):
