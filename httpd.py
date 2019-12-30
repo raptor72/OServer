@@ -52,8 +52,8 @@ class Server:
 
 if __name__ == '__main__':
     op = OptionParser()
-    op.add_option("-p", "--port", action="store", type=int, default=80)
-    op.add_option("-r", "--root", action="store", type=str, default='/')
+    op.add_option("-p", "--port", type=int, default=80)
+    op.add_option("-r", "--root", type=str, default='/')
     op.add_option("-w", "--worker", type=int, default=1)
     (opts, args) = op.parse_args()
     DOCUMENT_ROOT = opts.root if opts.root.startswith('/') else '/' + opts.root
