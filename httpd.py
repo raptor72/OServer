@@ -10,8 +10,7 @@ from optparse import OptionParser
 
 
 class Server:
-
-    def __init__(self, addr, port, root_dir, worker=1):
+    def __init__(self, addr, port, root_dir, worker):
         self.addr = addr
         self.port = port
         self.root_dir = root_dir
@@ -55,16 +54,14 @@ if __name__ == '__main__':
     op = OptionParser()
     op.add_option("-p", "--port", action="store", type=int, default=80)
     op.add_option("-r", "--root", action="store", type=str, default='/')
-    op.add_option("-l", "--log", action="store", default=None)
     op.add_option("-w", "--worker", type=int, default=1)
     (opts, args) = op.parse_args()
     DOCUMENT_ROOT = opts.root
-    logging.basicConfig(filename=opts.log, level=logging.INFO,
+    logging.basicConfig(level=logging.INFO,
                         format='[%(asctime)s] %(levelname).1s %(message)s', datefmt='%Y.%m.%d %H:%M:%S')
     logging.info('Starting server at %s' % opts.port)
-    logging.info('DOCUMENT_ROOT is %s' % DOCUMENT_ROOT)
-    server = Server('127.0.0.1', opts.port, DOCUMENT_ROOT, opts.worker)
-#    server = Server('172.17.0.2', opts.port, DOCUMENT_ROOT, opts.worker)
+#    logging.info('DOCUMENT_ROOT is %s' % DOCUMENT_ROOT)
+#    server = Server('127.0.0.1', opts.port, opts.root, opts.worker)
+    server = Server('172.17.0.2', opts.port, DOCUMENT_ROOT, opts.worker)
     server.run()
-
 

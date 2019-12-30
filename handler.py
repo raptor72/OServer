@@ -98,10 +98,3 @@ class Handler:
              return headers.encode()
         return headers.encode() + body
 
-
-
-
-
-
-
-
