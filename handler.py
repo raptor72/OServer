@@ -32,12 +32,15 @@ class Handler:
     def parse_request(self, request):
         parsed = request.split(' ')
         method = parsed[0]
+#        print(parsed[1])
         try:
             url = parsed[1].split('?')[0]
-            if url.startswith('/'):
-                url = urllib.parse.unquote(url[1:])
+#            if url.startswith('/'):
+#                url = urllib.parse.unquote(url[1:])
+            logging.info(f'url is: {url}')
             return (method, urllib.parse.unquote(url.replace('%20', ' ')))
         except:
+            logging.info(f'url is: {url}')
             return method, ''
 
     def parse_content_type(self, url):
@@ -53,7 +56,9 @@ class Handler:
     def generate_code(self, method, url):
         if method not in ['GET', 'HEAD']:
             return ('HTTP/1.1 405 Methd not allowed\r\n', 405)
-        path = os.path.join(self.full_path, url)
+#        path = os.path.join(self.full_path, url)
+        path = self.full_path + url
+        logging.info(f'base is: {self.base}, path is: {path}')
         if not os.path.exists(path) or not os.path.abspath(path).startswith(self.base):
             logging.info('not os.path.exists(path) or not os.path.abspath(path).startswith(self.base)')
             return ('HTTP/1.1 404 not found\r\n', 404)
@@ -74,7 +79,8 @@ class Handler:
             return b'<h1>404</h1><p>Not found</p>'
         if code == 405:
             return b'<h1>405</h1><p>Method not allowed</p>'
-        path = os.path.join(self.full_path, url)
+#        path = os.path.join(self.full_path, url)
+        path = self.full_path + url
         logging.info(f'URL is: {url}')
 #        if '/' + url == self.full_path:
         if path == self.full_path + '/':
