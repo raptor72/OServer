@@ -9,46 +9,39 @@ from handler import Handler
 from optparse import OptionParser
 
 
-class Server:
-    def __init__(self, addr, port, root_dir, worker):
-        self.addr = addr
-        self.port = port
-        self.root_dir = root_dir
-        self.worker = worker
-        self.handler = Handler
-        self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+def run(addr, port, root_dir, worker):
+    workers = []
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    server_socket.bind((addr, port))
+    server_socket.listen()
 
-    def run(self):
-        workers = []
-        self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.server_socket.bind((self.addr, self.port))
-        self.server_socket.listen()
-
-        for i in range(self.worker):
-            pid = os.fork()
-            if pid != 0:
-                workers.append(pid)
-            else:
-                while True:
-                    try:
-                         client_socket, addr = self.server_socket.accept()
-                    except IOError as e:
-                        if e.errno == errno.EINTR:
-                            continue
-                        raise
-                    request = client_socket.recv(1024)
-                    if len(request.strip()) == 0:
-                        client_socket.close()
+    for i in range(worker):
+        pid = os.fork()
+        if pid != 0:
+            workers.append(pid)
+        else:
+            while True:
+                try:
+                    client_socket, addr = server_socket.accept()
+                except IOError as e:
+                    if e.errno == errno.EINTR:
                         continue
-                    handler = self.handler(request, self.root_dir)
-                    if request:
-                        response = handler.generate_response(request.decode())
-                        client_socket.sendall(response)
+                    raise
+                request = client_socket.recv(1024)
+                if len(request.strip()) == 0:
                     client_socket.close()
-        self.server_socket.close()
+                    continue
+                handler = Handler(request, root_dir)
+                if request:
+                    response = handler.generate_response(request.decode())
+                    client_socket.sendall(response)
+                client_socket.close()
+    server_socket.close()
 
-        for pid in workers:
-            os.waitpid(pid, 0)
+    for pid in workers:
+        os.waitpid(pid, 0)
+
 
 if __name__ == '__main__':
     op = OptionParser()
@@ -61,7 +54,7 @@ if __name__ == '__main__':
                         format='[%(asctime)s] %(levelname).1s %(message)s', datefmt='%Y.%m.%d %H:%M:%S')
     logging.info('Starting server at %s' % opts.port)
     logging.info('DOCUMENT_ROOT is %s' % DOCUMENT_ROOT)
-    server = Server('127.0.0.1', opts.port, DOCUMENT_ROOT, opts.worker)
-#    server = Server('172.17.0.2', opts.port, DOCUMENT_ROOT, opts.worker)
-    server.run()
+    run('127.0.0.1', opts.port, DOCUMENT_ROOT, opts.worker)
+    run('172.17.0.2', opts.port, DOCUMENT_ROOT, opts.worker)
+
 
