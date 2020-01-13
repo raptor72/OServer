@@ -68,10 +68,7 @@ class Handler:
         path = self.full_path + url
         if path == self.full_path + '/':
              return bytes('\r\n'.join( '<p>' + repr(e).replace("'", '') + '</p>' for e in os.listdir(path)).encode())
-        if not '/' in url:
-            if os.path.isfile(path):
-                return self.render_html(path)
-        if os.path.isfile(path):
+        if os.path.isfile(path) and os.path.abspath(path).startswith(self.base):
             return self.render_html(path)
         if os.path.isdir(path):
             if os.path.exists(os.path.join(path, 'index.html')):
