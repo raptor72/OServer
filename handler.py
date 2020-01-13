@@ -84,7 +84,7 @@ class Handler:
         content_type = 'Content-Type: ' + self.parse_content_type(url) + '\r\n'
         content_length = 'Content-Length: ' + str(len(body)) + '\r\n'
         connection = 'Connection: close\r\n\r\n'
-        headers = response_prase + server + date + content_type + content_length + connection
+        headers = ''.join([response_prase, server, date, content_type, content_length, connection])
         return headers
 
     def generate_response(self, request):
