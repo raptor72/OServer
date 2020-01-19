@@ -68,10 +68,7 @@ class Handler:
         path = self.full_path + url
         if path == self.full_path + '/':
              return bytes('\r\n'.join( '<p>' + repr(e).replace("'", '') + '</p>' for e in os.listdir(path)).encode())
-        if not '/' in url:
-            if os.path.isfile(path):
-                return self.render_html(path)
-        if os.path.isfile(path):
+        if os.path.isfile(path) and os.path.abspath(path).startswith(self.base):
             return self.render_html(path)
         if os.path.isdir(path):
             if os.path.exists(os.path.join(path, 'index.html')):
@@ -84,7 +81,7 @@ class Handler:
         content_type = 'Content-Type: ' + self.parse_content_type(url) + '\r\n'
         content_length = 'Content-Length: ' + str(len(body)) + '\r\n'
         connection = 'Connection: close\r\n\r\n'
-        headers = response_prase + server + date + content_type + content_length + connection
+        headers = ''.join([response_prase, server, date, content_type, content_length, connection])
         return headers
 
     def generate_response(self, request):
