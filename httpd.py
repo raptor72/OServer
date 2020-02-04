@@ -55,7 +55,7 @@ if __name__ == '__main__':
                         format='[%(asctime)s] %(levelname).1s %(message)s', datefmt='%Y.%m.%d %H:%M:%S')
     logging.info('Starting server at %s' % opts.port)
     logging.info('DOCUMENT_ROOT is %s' % DOCUMENT_ROOT)
-#    run('127.0.0.1', opts.port, DOCUMENT_ROOT, opts.worker, opts.buffer)
-    run('172.17.0.2', opts.port, DOCUMENT_ROOT, opts.worker, opts.buffer)
+    run('127.0.0.1', opts.port, DOCUMENT_ROOT, opts.worker, opts.buffer)
+#    run('172.17.0.2', opts.port, DOCUMENT_ROOT, opts.worker, opts.buffer)
 
 
