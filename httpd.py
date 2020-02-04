@@ -9,7 +9,7 @@ from handler import Handler
 from optparse import OptionParser
 
 
-def run(addr, port, root_dir, worker):
+def run(addr, port, root_dir, worker, maxbuff):
     workers = []
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -28,7 +28,7 @@ def run(addr, port, root_dir, worker):
                     if e.errno == errno.EINTR:
                         continue
                     raise
-                request = client_socket.recv(1024)
+                request = client_socket.recv(maxbuff)
                 if len(request.strip()) == 0:
                     client_socket.close()
                     continue
@@ -48,13 +48,14 @@ if __name__ == '__main__':
     op.add_option("-p", "--port", type=int, default=80)
     op.add_option("-r", "--root", type=str, default='/')
     op.add_option("-w", "--worker", type=int, default=1)
+    op.add_option("-b", "--buffer", type=int, default=1024)
     (opts, args) = op.parse_args()
     DOCUMENT_ROOT = opts.root if opts.root.startswith('/') else '/' + opts.root
     logging.basicConfig(level=logging.INFO,
                         format='[%(asctime)s] %(levelname).1s %(message)s', datefmt='%Y.%m.%d %H:%M:%S')
     logging.info('Starting server at %s' % opts.port)
     logging.info('DOCUMENT_ROOT is %s' % DOCUMENT_ROOT)
-    run('127.0.0.1', opts.port, DOCUMENT_ROOT, opts.worker)
-#    run('172.17.0.2', opts.port, DOCUMENT_ROOT, opts.worker)
+#    run('127.0.0.1', opts.port, DOCUMENT_ROOT, opts.worker, opts.buffer)
+    run('172.17.0.2', opts.port, DOCUMENT_ROOT, opts.worker, opts.buffer)
 
 
