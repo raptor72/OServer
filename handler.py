@@ -61,7 +61,6 @@ class Handler:
         return data
 
     def generate_body(self, code, url):
-        print(url)
         if code == 404:
             return b'<h1>404</h1><p>Not found</p>'
         if code == 405:
@@ -79,46 +78,24 @@ class Handler:
     def get_content_length(self, url, response_prase):
         path = self.full_path + url
         if os.path.isfile(path) and os.path.abspath(path).startswith(self.base):
-            print('case 1')
             content_length = 'Content-Length: ' + str(os.path.getsize(path))
         elif url == self.root_dir:
-            print('case 2')
             content_length = 'Content-Length: ' + str(len('\r\n'.join( '<p>' + repr(e).replace("'", '') + '</p>' for e in os.listdir(path)).encode()))
-        elif os.path.isdir(path):
-            if 'index.html' in os.listdir(path):
-                indexfile = os.path.join(path + 'index.html') if os.path.exists(os.path.join(path + 'index.html')) else os.path.join(path + '/index.html')
-                print('case 3')
-                content_length = 'Content-Length: ' + str(os.path.getsize(indexfile))
+        elif os.path.isdir(path) and 'index.html' in os.listdir(path):
+            indexfile = os.path.join(path + 'index.html') if os.path.exists(os.path.join(path + 'index.html')) else os.path.join(path + '/index.html')
+            content_length = 'Content-Length: ' + str(os.path.getsize(indexfile))
         else:
-            print('case 4')
             content_length = 'Content-Length: ' + str(len(response_prase))
         return content_length + '\r\n'
 
     def generate_headers(self, method, url):
-        path = self.full_path + url
         response_prase, code = self.generate_code(method, url)
         server = 'Server: python ' + sys.version.split('[')[0].strip() + ' ' +  sys.version.split('[')[1].strip().replace(']', '') + '\r\n'
         date = 'Date: ' + datetime.datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S GMT') + '\r\n'
         content_type = 'Content-Type: ' + self.parse_content_type(url) + '\r\n'
-
-        if os.path.isfile(self.full_path + url) and os.path.abspath(self.full_path + url).startswith(self.base):
-            content_length = 'Content-Length: ' + str(os.path.getsize(self.full_path + url)) + '\r\n'
-        elif url == self.root_dir:
-            content_length = 'Content-Length: ' + str(len('\r\n'.join( '<p>' + repr(e).replace("'", '') + '</p>' for e in os.listdir(path)).encode())) + '\r\n'
-#        elif os.path.isdir(self.full_path + url) and os.path.exists(self.full_path + url + 'index.html'):
-#            content_length = 'Content-Length: ' + str(os.path.getsize(self.full_path + url + 'index.html')) + '\r\n'
-
-        elif os.path.isdir(path) and 'index.html' in os.listdir(path):
-            indexfile = os.path.join(path + 'index.html') if os.path.exists(os.path.join(path + 'index.html')) else os.path.join(path + '/index.html')
-            print('case 3')
-            content_length = 'Content-Length: ' + str(os.path.getsize(indexfile)) + '\r\n'
-        else:
-            content_length = 'Content-Length: ' + str(len(response_prase)) + '\r\n'
-#        content_length = self.get_content_length(url, response_prase)
-
+        content_length = self.get_content_length(url, response_prase)
         connection = 'Connection: close\r\n\r\n'
         headers = ''.join([response_prase, server, date, content_type, content_length, connection])
-        print(headers)
         return headers, code, response_prase
 
     def generate_response(self, request):
