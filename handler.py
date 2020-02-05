@@ -61,11 +61,11 @@ class Handler:
         return data
 
     def generate_body(self, code, url):
+        path = self.full_path + url
         if code == 404:
             return b'<h1>404</h1><p>Not found</p>'
         if code == 405:
             return b'<h1>405</h1><p>Method not allowed</p>'
-        path = self.full_path + url
         if path == self.full_path + '/':
              return bytes('\r\n'.join( '<p>' + repr(e).replace("'", '') + '</p>' for e in os.listdir(path)).encode())
         if os.path.isfile(path) and os.path.abspath(path).startswith(self.base):
@@ -86,14 +86,14 @@ class Handler:
             content_length = 'Content-Length: ' + str(os.path.getsize(indexfile))
         else:
             content_length = 'Content-Length: ' + str(len(response_prase))
-        return content_length + '\r\n'
+        return content_length
 
     def generate_headers(self, method, url):
         response_prase, code = self.generate_code(method, url)
         server = 'Server: python ' + sys.version.split('[')[0].strip() + ' ' +  sys.version.split('[')[1].strip().replace(']', '') + '\r\n'
         date = 'Date: ' + datetime.datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S GMT') + '\r\n'
         content_type = 'Content-Type: ' + self.parse_content_type(url) + '\r\n'
-        content_length = self.get_content_length(url, response_prase)
+        content_length = self.get_content_length(url, response_prase) + '\r\n'
         connection = 'Connection: close\r\n\r\n'
         headers = ''.join([response_prase, server, date, content_type, content_length, connection])
         return headers, code, response_prase
