@@ -1,13 +1,22 @@
 #!/usr/bin/python3
 
 import os
-import sys
 import errno
 import socket
 import logging
 from handler import Handler
 from optparse import OptionParser
 
+
+def read_all(sock, maxbuff, TIMEOUT=5):
+    data = b''
+    sock.settimeout(TIMEOUT)
+    while True:
+        buf = sock.recv(maxbuff)
+        data += buf
+        if not buf or b'\r\n\r\n' in data:
+            break
+    return data
 
 def run(addr, port, root_dir, worker, maxbuff):
     workers = []
@@ -28,7 +37,7 @@ def run(addr, port, root_dir, worker, maxbuff):
                     if e.errno == errno.EINTR:
                         continue
                     raise
-                request = client_socket.recv(maxbuff)
+                request = read_all(client_socket, maxbuff)
                 if len(request.strip()) == 0:
                     client_socket.close()
                     continue
